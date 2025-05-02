@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MultiBrowser - أداة لفتح عدة مواقع في صفحة واحدة</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.1/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(90deg, #00D9FF, #0095FF);
+            --secondary-gradient: linear-gradient(90deg, #FF00F5, #8000FF);
+            --background-color: #060d29;
+            --card-bg: rgba(15, 23, 42, 0.8);
+            --accent-color: #00D9FF;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background-color);
+            color: white;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+
+        .gradient-text {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .gradient-border {
+            border: 2px solid;
+            border-image: var(--primary-gradient) 1;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 10px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: var(--secondary-gradient);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover, .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 217, 255, 0.4);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .navbar {
+            background: rgba(5, 10, 25, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        .phone-illustration {
+            position: relative;
+            width: 280px;
+            height: 500px;
+            margin: 0 auto;
+            background: var(--secondary-gradient);
+            border-radius: 30px;
+            box-shadow: 0 0 40px rgba(136, 0, 255, 0.5);
+            overflow: hidden;
+        }
+
+        .phone-screen {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            background: #1a103a;
+            border-radius: 25px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+        }
+
+        .phone-element {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            width: 80%;
+            height: 20px;
+            margin: 5px 0;
+        }
+
+        .phone-circle {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .phone-circle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+        }
+
+        .phone-dot {
+            position: absolute;
+            border-radius: 50%;
+        }
+        
+        .blue-dot {
+            background: #00D9FF;
+        }
+        
+        .purple-dot {
+            background: #FF00F5;
+        }
+
+        .dot-1 {
+            width: 10px;
+            height: 10px;
+            top: 20%;
+            right: 30%;
+        }
+        
+        .dot-2 {
+            width: 15px;
+            height: 15px;
+            bottom: 40%;
+            left: 20%;
+        }
+        
+        .dot-3 {
+            width: 8px;
+            height: 8px;
+            top: 50%;
+            left: 35%;
+        }
+
+        .dot-4 {
+            width: 12px;
+            height: 12px;
+            bottom: 20%;
+            right: 25%;
+        }
+
+        .glow-line {
+            position: absolute;
+            height: 2px;
+            background: rgba(0, 217, 255, 0.7);
+            width: 60%;
+            top: 30%;
+            left: 20%;
+            border-radius: 2px;
+            box-shadow: 0 0 10px #00D9FF;
+        }
+
+        .wifi-icon {
+            position: absolute;
+            top: 15%;
+            right: 15%;
+            color: #00D9FF;
+            font-size: 24px;
+            opacity: 0.8;
+        }
+
+        /* Iframe container styles */
+        .iframe-container {
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .iframe-header {
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .iframe-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .iframe-controls button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+
+        .iframe-controls button:hover {
+            opacity: 1;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .status-online {
+            background-color: #10B981;
+        }
+
+        .status-offline {
+            background-color: #EF4444;
+        }
+
+        /* Grid layout */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 16px;
+        }
+
+        /* Tabs layout */
+        .layout-tabs .iframe-container {
+            display: none;
+        }
+
+        .layout-tabs .iframe-container.active {
+            display: block;
+        }
+
+        .tabs-nav {
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tab-item {
+            padding: 8px 16px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            margin-right: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+
+        .tab-item:hover {
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .tab-item.active {
+            background: var(--primary-gradient);
+            border-color: transparent;
+        }
+
+        /* Split layout */
+        .layout-split {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        /* Form elements */
+        input, select, button {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            color: white;
+            padding: 8px 12px;
+            outline: none;
+        }
+
+        input:focus, select:focus {
+            border-color: var(--accent-color);
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .layout-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .layout-split {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Navbar -->
+    <nav class="navbar fixed w-full z-10 p-4 flex justify-between items-center">
+        <div class="flex items-center">
+            <i class="fas fa-globe text-2xl mr-2 text-blue-400"></i>
+            <span class="text-xl font-bold gradient-text">MultiBrowser</span>
+        </div>
+        <div class="hidden md:flex space-x-6 items-center">
+            <a href="#home" class="text-white hover:text-blue-400 transition-colors">الرئيسية</a>
+            <a href="#about" class="text-white hover:text-blue-400 transition-colors">حول الأداة</a>
+            <a href="#app" class="text-white hover:text-blue-400 transition-colors">التطبيق</a>
+            <a href="#contact" class="text-white hover:text-blue-400 transition-colors">اتصل بنا</a>
+        </div>
+        <button class="md:hidden text-white focus:outline-none">
+            <i class="fas fa-bars"></i>
+        </button>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="py-24 px-4 md:px-12 min-h-screen flex items-center">
+        <div class="container mx-auto flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 p-4">
+                <h1 class="text-5xl font-bold mb-2">
+                    <span class="text-white">الـ</span>
+                    <span class="gradient-text">متصفح</span>
+                </h1>
+                <h1 class="text-5xl font-bold mb-6">
+                    <span class="text-white">المتعدد</span>
+                </h1>
+                <p class="text-gray-300 mb-8 text-lg">
+                    أداة ذكية تتيح لك عرض عدة مواقع في صفحة واحدة بشكل متزامن. زد من إنتاجيتك من خلال مراقبة عدة مواقع دفعة واحدة مع تخطيطات مرنة.
+                </p>
+                <a href="#app" class="btn-primary inline-block">ابدأ الآن</a>
+            </div>
+            
+            <div class="md:w-1/2 p-4 flex justify-center">
+                <div class="phone-illustration">
+                    <div class="phone-screen">
+                        <div class="phone-element w-3/4 h-6 bg-blue-500/30 rounded-md"></div>
+                        <div class="phone-circle flex items-center justify-center">
+                            <i class="fas fa-wifi text-purple-300"></i>
+                        </div>
+                        <div class="phone-element w-4/5 h-20 bg-purple-500/20 rounded-lg"></div>
+                        
+                        <!-- Dots -->
+                        <div class="phone-dot dot-1 blue-dot"></div>
+                        <div class="phone-dot dot-2 purple-dot"></div>
+                        <div class="phone-dot dot-3 blue-dot"></div>
+                        <div class="phone-dot dot-4 purple-dot"></div>
+                        
+                        <div class="glow-line"></div>
+                        <div class="phone-element w-3/4 h-8 bg-blue-500/30 rounded-md"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="py-16 px-4 md:px-12 bg-opacity-50 bg-black">
+        <div class="container mx-auto">
+            <h2 class="text-3xl font-bold mb-8 text-center">حول هذه الأداة</h2>
+            
+            <div class="card p-6 mb-8">
+                <p class="text-gray-300 mb-4">
+                    <strong class="gradient-text">MultiBrowser</strong> هي أداة ذكية عبارة عن صفحة HTML واحدة فقط تفتح عدة مواقع في وقت واحد — وتفتح نفسها بداخلها!
+                </p>
+                <p class="text-gray-300 mb-4">
+                    هذه الأداة ليست تطبيقاً معقدًا أو خدمة تعتمد على الخادم، بل هي ببساطة صفحة HTML واحدة فقط تعمل بشكل مستقل على أي متصفح، ويمكن حفظها على جهازك وتشغيلها محليًا أو رفعها على أي استضافة.
+                </p>
+                <p class="text-gray-300">
+                    تعتمد على تقنيات HTML + CSS + JavaScript فقط.
+                </p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="card p-6">
+                    <i class="fas fa-file-code text-blue-400 text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-3">صفحة واحدة</h3>
+                    <p class="text-gray-300">
+                        صفحة HTML واحدة فقط — لا تحتاج لأي خادم أو تطبيق معقد للعمل.
+                    </p>
+                </div>
+                
+                <div class="card p-6">
+                    <i class="fas fa-project-diagram text-purple-400 text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-3">تخطيطات مرنة</h3>
+                    <p class="text-gray-300">
+                        تدعم عدة طرق للعرض: شبكة / تبويبات / عرض مقسم.
+                    </p>
+                </div>
+                
+                <div class="card p-6">
+                    <i class="fas fa-sync-alt text-green-400 text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-3">ميزات متقدمة</h3>
+                    <p class="text-gray-300">
+                        تخزين تلقائي، تحديث المواقع، كشف الاتصال، استيراد وتصدير الإعدادات.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Application Section -->
+    <section id="app" class="py-16 px-4 md:px-12">
+        <div class="container mx-auto">
+            <h2 class="text-3xl font-bold mb-8 text-center">استخدم الأداة الآن</h2>
+            
+            <div class="card p-6 mb-8">
+                <div class="mb-6">
+                    <form id="url-form" class="flex flex-col md:flex-row gap-4">
+                        <input 
+                            type="url" 
+                            id="url-input" 
+                            placeholder="أدخل رابط الموقع (URL)..."
+                            class="flex-grow min-w-0" 
+                            required
+                        />
+                        <input 
+                            type="text" 
+                            id="title-input" 
+                            placeholder="عنوان (اختياري)"
+                            class="md:w-1/4 min-w-0"
+                        />
+                        <button type="submit" class="btn-primary whitespace-nowrap">
+                            <i class="fas fa-plus"></i> إضافة موقع
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                    <div class="flex items-center gap-4 mb-4 md:mb-0">
+                        <span class="text-gray-300">طريقة العرض:</span>
+                        <div class="flex gap-2">
+                            <button id="grid-layout" class="px-3 py-2 bg-blue-600 rounded-md" title="عرض شبكة">
+                                <i class="fas fa-th"></i>
+                            </button>
+                            <button id="tabs-layout" class="px-3 py-2 bg-gray-700 rounded-md" title="عرض تبويبات">
+                                <i class="fas fa-folder"></i>
+                            </button>
+                            <button id="split-layout" class="px-3 py-2 bg-gray-700 rounded-md" title="عرض مقسم">
+                                <i class="fas fa-columns"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-2">
+                        <button id="export-btn" class="px-3 py-2 bg-purple-700 rounded-md" title="تصدير الإعدادات">
+                            <i class="fas fa-file-export"></i>
+                        </button>
+                        <button id="import-btn" class="px-3 py-2 bg-green-700 rounded-md" title="استيراد الإعدادات">
+                            <i class="fas fa-file-import"></i>
+                        </button>
+                        <input type="file" id="import-file" accept=".json" class="hidden" />
+                        <button id="clear-all" class="px-3 py-2 bg-red-700 rounded-md" title="مسح الكل">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="tabs-nav" class="tabs-nav hidden"></div>
+                
+                <div id="websites-container" class="layout-grid"></div>
+                
+                <div id="no-websites" class="text-center py-12 text-gray-400">
+                    <i class="fas fa-globe text-5xl mb-4"></i>
+                    <p>لم تقم بإضافة أي مواقع بعد. أضف مواقع باستخدام النموذج أعلاه.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-16 px-4 md:px-12 bg-opacity-50 bg-black">
+        <div class="container mx-auto">
+            <h2 class="text-3xl font-bold mb-8 text-center">المميزات</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="card p-6">
+                    <i class="fas fa-sync text-blue-400 text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-3">تحديث تلقائي</h3>
+                    <p class="text-gray-300">زر تحديث لكل موقع مع إمكانية التحكم في تجديد المحتوى.</p>
+                </div>
+                
+                <div class="card p-6">
+                    <i class="fas fa-database text-green-400 text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-3">حفظ تلقائي</h3>
+                    <p class="text-gray-300">تخزين تلقائي للمواقع والإعدادات باستخدام LocalStorage.</p>
+                </div>
+                
+                <div class="card p-6">
+                    <i class="fas fa-wifi text-yellow-400 text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-3">كشف حالة الاتصال</h3>
+                    <p class="text-gray-300">مؤشر يظهر حالة المواقع متصل/غير متصل.</p>
+                </div>
+                
+                <div class="card p-6">
+                    <i class="fas fa-file-export text-purple-400 text-3xl mb-4"></i>
+                    <h3 class="text-xl font-bold mb-3">استيراد/تصدير</h3>
+                    <p class="text-gray-300">حفظ واستعادة الإعدادات بتنسيق JSON.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 px-4 md:px-12 bg-opacity-80 bg-black">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <div class="mb-4 md:mb-0">
+                <span class="text-gray-400">&copy; 2023 MultiBrowser - جميع الحقوق محفوظة</span>
+            </div>
+            <div class="flex gap-4">
+                <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" class="text-gray-400 hover:text-blue-400 transition-colors">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elements
+            const urlForm = document.getElementById('url-form');
+            const urlInput = document.getElementById('url-input');
+            const titleInput = document.getElementById('title-input');
+            const websitesContainer = document.getElementById('websites-container');
+            const noWebsitesMsg = document.getElementById('no-websites');
+            const tabsNav = document.getElementById('tabs-nav');
+            
+            // Layout buttons
+            const gridLayoutBtn = document.getElementById('grid-layout');
+            const tabsLayoutBtn = document.getElementById('tabs-layout');
+            const splitLayoutBtn = document.getElementById('split-layout');
+            
+            // Import/Export buttons
+            const exportBtn = document.getElementById('export-btn');
+            const importBtn = document.getElementById('import-btn');
+            const importFile = document.getElementById('import-file');
+            const clearAllBtn = document.getElementById('clear-all');
+            
+            // State
+            let websites = [];
+            let currentLayout = 'grid';
+            let activeTabIndex = 0;
+            
+            // Common URL suggestions
+            const commonUrls = [
+                'https://www.google.com',
+                'https://www.youtube.com',
+                'https://www.github.com',
+                'https://www.stackoverflow.com',
+                'https://www.twitter.com',
+                'https://www.linkedin.com',
+                'https://www.facebook.com',
+                'https://www.reddit.com'
+            ];
+            
+            // Add datalist for URL suggestions
+            const createDatalist = () => {
+                const datalist = document.createElement('datalist');
+                datalist.id = 'url-suggestions';
+                
+                commonUrls.forEach(url => {
+                    const option = document.createElement('option');
+                    option.value = url;
+                    datalist.appendChild(option);
+                });
+                
+                document.body.appendChild(datalist);
+                urlInput.setAttribute('list', 'url-suggestions');
+            };
+            
+            // Initialize
+            const init = () => {
+                createDatalist();
+                loadFromLocalStorage();
+                renderWebsites();
+                setupEventListeners();
+            };
+            
+            // Save to LocalStorage
+            const saveToLocalStorage = () => {
+                localStorage.setItem('multiBrowser_websites', JSON.stringify(websites));
+                localStorage.setItem('multiBrowser_layout', currentLayout);
+                localStorage.setItem('multiBrowser_activeTab', activeTabIndex);
+            };
+            
+            // Load from LocalStorage
+            const loadFromLocalStorage = () => {
+                const savedWebsites = localStorage.getItem('multiBrowser_websites');
+                const savedLayout = localStorage.getItem('multiBrowser_layout');
+                const savedActiveTab = localStorage.getItem('multiBrowser_activeTab');
+                
+                if (savedWebsites) {
+                    websites = JSON.parse(savedWebsites);
+                }
+                
+                if (savedLayout) {
+                    currentLayout = savedLayout;
+                    updateLayoutButtons();
+                    updateLayoutClass();
+                }
+                
+                if (savedActiveTab) {
+                    activeTabIndex = parseInt(savedActiveTab);
+                }
+            };
+            
+            // Update layout buttons
+            const updateLayoutButtons = () => {
+                gridLayoutBtn.className = 'px-3 py-2 rounded-md';
+                tabsLayoutBtn.className = 'px-3 py-2 rounded-md';
+                splitLayoutBtn.className = 'px-3 py-2 rounded-md';
+                
+                if (currentLayout === 'grid') {
+                    gridLayoutBtn.classList.add('bg-blue-600');
+                    tabsLayoutBtn.classList.add('bg-gray-700');
+                    splitLayoutBtn.classList.add('bg-gray-700');
+                } else if (currentLayout === 'tabs') {
+                    gridLayoutBtn.classList.add('bg-gray-700');
+                    tabsLayoutBtn.classList.add('bg-blue-600');
+                    splitLayoutBtn.classList.add('bg-gray-700');
+                } else if (currentLayout === 'split') {
+                    gridLayoutBtn.classList.add('bg-gray-700');
+                    tabsLayoutBtn.classList.add('bg-gray-700');
+                    splitLayoutBtn.classList.add('bg-blue-600');
+                }
+            };
+            
+            // Update layout class
+            const updateLayoutClass = () => {
+                websitesContainer.className = '';
+                tabsNav.className = 'tabs-nav hidden';
+                
+                if (currentLayout === 'grid') {
+                    websitesContainer.classList.add('layout-grid');
+                } else if (currentLayout === 'tabs') {
+                    websitesContainer.classList.add('layout-tabs');
+                    tabsNav.classList.remove('hidden');
+                } else if (currentLayout === 'split') {
+                    websitesContainer.classList.add('layout-split');
+                }
+            };
+            
+            // Create iframe container
+            const createIframeContainer = (website, index) => {
+                const container = document.createElement('div');
+                container.className = 'iframe-container';
+                container.dataset.index = index;
+                
+                if (currentLayout === 'tabs') {
+                    container.classList.toggle('active', index === activeTabIndex);
+                }
+                
+                // Header
+                const header = document.createElement('div');
+                header.className = 'iframe-header';
+                
+                // Title with status
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'flex items-center';
+                
+                const statusIndicator = document.createElement('div');
+                statusIndicator.className = 'status-indicator';
+                statusIndicator.classList.add('status-offline');
+                
+                const titleSpan = document.createElement('span');
+                titleSpan.textContent = website.title || new URL(website.url).hostname;
+                titleSpan.className = 'truncate max-w-xs';
+                
+                titleDiv.appendChild(statusIndicator);
+                titleDiv.appendChild(titleSpan);
+                
+                // Controls
+                const controls = document.createElement('div');
+                controls.className = 'iframe-controls';
+                
+                const refreshBtn = document.createElement('button');
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+                refreshBtn.title = 'تحديث';
+                refreshBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    refreshIframe(container.querySelector('iframe'));
+                });
+                
+                const removeBtn = document.createElement('button');
+                removeBtn.innerHTML = '<i class="fas fa-times"></i>';
+                removeBtn.title = 'إزالة';
+                removeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    removeWebsite(index);
+                });
+                
+                controls.appendChild(refreshBtn);
+                controls.appendChild(removeBtn);
+                
+                header.appendChild(titleDiv);
+                header.appendChild(controls);
+                
+                // Iframe
+                const iframe = document.createElement('iframe');
+                iframe.src = website.url;
+                iframe.style.width = '100%';
+                iframe.style.height = '500px';
+                iframe.style.border = 'none';
+                
+                iframe.addEventListener('load', () => {
+                    statusIndicator.classList.remove('status-offline');
+                    statusIndicator.classList.add('status-online');
+                });
+                
+                iframe.addEventListener('error', () => {
+                    statusIndicator.classList.remove('status-online');
+                    statusIndicator.classList.add('status-offline');
+                });
+                
+                container.appendChild(header);
+                container.appendChild(iframe);
+                
+                return container;
+            };
+            
+            // Create tab
+            const createTab = (website, index) => {
+                const tab = document.createElement('div');
+                tab.className = 'tab-item';
+                tab.textContent = website.title || new URL(website.url).hostname;
+                tab.dataset.index = index;
+                
+                if (index === activeTabIndex) {
+                    tab.classList.add('active');
+                }
+                
+                tab.addEventListener('click', () => {
+                    activeTabIndex = index;
+                    renderWebsites();
+                    saveToLocalStorage();
+                });
+                
+                return tab;
+            };
+            
+            // Refresh iframe
+            const refreshIframe = (iframe) => {
+                const currentSrc = iframe.src;
+                iframe.src = '';
+                setTimeout(() => {
+                    iframe.src = currentSrc;
+                }, 100);
+            };
+            
+            // Add website
+            const addWebsite = (url, title = '') => {
+                websites.push({
+                    url: url,
+                    title: title
+                });
+                
+                saveToLocalStorage();
+                renderWebsites();
+            };
+            
+            // Remove website
+            const removeWebsite = (index) => {
+                websites.splice(index, 1);
+                
+                if (activeTabIndex >= websites.length) {
+                    activeTabIndex = Math.max(0, websites.length - 1);
+                }
+                
+                saveToLocalStorage();
+                renderWebsites();
+            };
+            
+            // Export settings
+            const exportSettings = () => {
+                const data = {
+                    websites: websites,
+                    layout: currentLayout,
+                    activeTab: activeTabIndex
+                };
+                
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+                
+                const exportLink = document.createElement('a');
+                exportLink.setAttribute('href', dataUri);
+                exportLink.setAttribute('download', 'multibrowser_settings.json');
+                exportLink.click();
+            };
+            
+            // Import settings
+            const importSettings = (file) => {
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        
+                        if (data.websites && Array.isArray(data.websites)) {
+                            websites = data.websites;
+                            
+                            if (data.layout) {
+                                currentLayout = data.layout;
+                            }
+                            
+                            if (data.activeTab !== undefined) {
+                                activeTabIndex = data.activeTab;
+                            }
+                            
+                            saveToLocalStorage();
+                            renderWebsites();
+                            updateLayoutButtons();
+                            updateLayoutClass();
+                        }
+                    } catch (error) {
+                        alert('خطأ في ملف الإعدادات: ' + error.message);
+                    }
+                };
+                
+                reader.readAsText(file);
+            };
+            
+            // Clear all websites
+            const clearAllWebsites = () => {
+                if (confirm('هل أنت متأكد من رغبتك في حذف جميع المواقع؟')) {
+                    websites = [];
+                    activeTabIndex = 0;
+                    saveToLocalStorage();
+                    renderWebsites();
+                }
+            };
+            
+            // Render websites
+            const renderWebsites = () => {
+                websitesContainer.innerHTML = '';
+                tabsNav.innerHTML = '';
+                
+                if (websites.length === 0) {
+                    noWebsitesMsg.classList.remove('hidden');
+                    return;
+                } else {
+                    noWebsitesMsg.classList.add('hidden');
+                }
+                
+                // Create tabs if needed
+                if (currentLayout === 'tabs') {
+                    websites.forEach((website, index) => {
+                        tabsNav.appendChild(createTab(website, index));
+                    });
+                }
+                
+                // Create iframes
+                websites.forEach((website, index) => {
+                    websitesContainer.appendChild(createIframeContainer(website, index));
+                });
+            };
+            
+            // Setup event listeners
+            const setupEventListeners = () => {
+                // Form submit
+                urlForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const url = urlInput.value.trim();
+                    const title = titleInput.value.trim();
+                    
+                    if (url) {
+                        let formattedUrl = url;
+                        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                            formattedUrl = 'https://' + url;
+                        }
+                        
+                        addWebsite(formattedUrl, title);
+                        urlInput.value = '';
+                        titleInput.value = '';
+                    }
+                });
+                
+                // Layout buttons
+                gridLayoutBtn.addEventListener('click', () => {
+                    currentLayout = 'grid';
+                    updateLayoutButtons();
+                    updateLayoutClass();
+                    renderWebsites();
+                    saveToLocalStorage();
+                });
+                
+                tabsLayoutBtn.addEventListener('click', () => {
+                    currentLayout = 'tabs';
+                    updateLayoutButtons();
+                    updateLayoutClass();
+                    renderWebsites();
+                    saveToLocalStorage();
+                });
+                
+                splitLayoutBtn.addEventListener('click', () => {
+                    currentLayout = 'split';
+                    updateLayoutButtons();
+                    updateLayoutClass();
+                    renderWebsites();
+                    saveToLocalStorage();
+                });
+                
+                // Export button
+                exportBtn.addEventListener('click', exportSettings);
+                
+                // Import button
+                importBtn.addEventListener('click', () => {
+                    importFile.click();
+                });
+                
+                // Import file change
+                importFile.addEventListener('change', (e) => {
+                    if (e.target.files.length > 0) {
+                        importSettings(e.target.files[0]);
+                        importFile.value = '';
+                    }
+                });
+                
+                // Clear all button
+                clearAllBtn.addEventListener('click', clearAllWebsites);
+            };
+            
+            // Initialize the application
+            init();
+        });
+    </script>
+</body>
+</html>
